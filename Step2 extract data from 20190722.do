@@ -10,22 +10,6 @@ sum w5_sdc_days1 if w5_sdc_diff == 2
 
 sum w9_sdc_days1 if w5_sdc_diff == 2
 
-***************************************
-gen d0_costcytisine_pk = 724.51
-gen d0_costcytisine_bd = 496.43
-gen d5_costcytisine_pk = 1182.09
-gen d5_costcytisine_bd = 809.96
-
-gen cost_cytisine_disp = d0_costcytisine_pk if country == 1
-replace cost_cytisine_disp = d0_costcytisine_bd if country == 2
-
-replace cost_cytisine_disp = cost_cytisine_disp + d5_costcytisine_pk if country == 1 & !mi(d5_datecomp)
-replace cost_cytisine_disp = cost_cytisine_disp + d5_costcytisine_bd if country == 2 & !mi(d5_datecomp)
-
-replace cost_cytisine_disp = 0 if alloc == 2
-
-gen pppcost_cytisine_disp = cost_cytisine_disp / 29.3 if country == 1
-replace pppcost_cytisine_disp = cost_cytisine_disp / 30.9 if country == 2
 
 ***********SAE*************************
 
