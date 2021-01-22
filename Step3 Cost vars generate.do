@@ -3,6 +3,7 @@
 ***original file has a duplicate for P23020, drop it***********
 merge 1:1 patid using "P:\\Documents\TB n Tobacco\Trial data\compliance sae from 20190722.dta"
 drop _merge
+
 ***intervention costs************
 gen uc_bs1_bd = 16.27
 gen uc_bs1_pk = 22.15
@@ -18,16 +19,33 @@ replace cost_bs = uc_bs1_bd + uc_bs2_bd if d0_behavsupp == 1 & country == 2 & !m
 gen pppcost_bs = cost_bs/29.3 if country == 1
 replace pppcost_bs = cost_bs/30.9 if country == 2
 
-gen cost_cytisine100_bd = 1306
-gen cost_cytisine100_pk = 1907
+gen d0_costcytisine_pk = 724.51
+gen d0_costcytisine_bd = 496.43
+gen d5_costcytisine_pk = 1182.09
+gen d5_costcytisine_bd = 809.96
 
-gen cost_cytisine = cost_cytisine100_bd if country == 2
-replace cost_cytisine = cost_cytisine100_pk if country == 1
+gen cost_cytisine_disp = d0_costcytisine_pk if country == 1
+replace cost_cytisine_disp = d0_costcytisine_bd if country == 2
 
-****PPP Pakistan 29.3/USD, Bangladesh 30.9/USD in 2017, 2018 has come out yet 26/06/2019
-gen pppcost_cytisine = cost_cytisine / 29.3 if country == 1
-replace pppcost_cytisine = cost_cytisine / 30.9 if country == 2
+replace cost_cytisine_disp = cost_cytisine_disp + d5_costcytisine_pk if country == 1 & !mi(d5_datecomp)
+replace cost_cytisine_disp = cost_cytisine_disp + d5_costcytisine_bd if country == 2 & !mi(d5_datecomp)
 
+replace cost_cytisine_disp = 0 if alloc == 2
+
+gen pppcost_cytisine_disp = cost_cytisine_disp / 29.3 if country == 1
+replace pppcost_cytisine_disp = cost_cytisine_disp / 30.9 if country == 2
+
+gen cost_leaflet = 50 if country == 1
+replace cost_leaflet = 5 if country == 2
+
+gen pppcost_leaflet = cost_leaflet / 29.3 if country == 1
+replace pppcost_leaflet = cost_leaflet / 30.9 if country == 2
+
+gen cost_training = 398 if country == 1
+replace cost_training = 287 if country == 2
+
+gen pppcost_training = cost_training / 29.3 if country == 1
+replace pppcost_training = cost_training / 30.9 if country == 2
 
 ***TB-related costs**************
 ***per month costs*********
@@ -421,6 +439,7 @@ drop m6_COquit m12_COquit mistab_m6_COquit mistab_m12_COquit m6_outcome m12_outc
 	cis_full_rip cis_full_dateofdeath death deathfromd0
 merge 1:1 patid using "P:\\Documents\TB n Tobacco\Trial data\new quit tb death from 20190722.dta"
 drop _merge
+
 ******Death*****************
 gen death = 0 if cis_full_rip != 1
 gen deathfromd0 = cis_full_dateofdeath - d0_datecomp
@@ -581,95 +600,3 @@ replace d0_pppdocprolos_fri = d0_docprolos_fri/29.3 if patid == "P24004"
 merge 1:1 patid using "P:\\Documents\TB n Tobacco\Trial data\tb score from 20190722.dta", update replace
 rename _merge _tbscupdate
 
-**********missing data table*********************************
-
-misstable summ cost_bs cost_tb *_cost_ss *_cost_doc *_cost_hos, gen(mistab_)
-
-misstable summ *_exp_tb *_exp_ss *_exp_doc *_exp_hos *_exp_tob, gen(mistab_)
-
-misstable summ d0_eq* m6_eq* m12_eq* *_vas, gen(mistab_)
-
-misstable summ d0_isco d0_sdh_age d0_sdh_gender d0_smoke_years d0_siteid country, gen(mistab_)
-
-misstable summ *_tbsc, gen(mistab_)
-
-misstable summ *_tbprolos_fri *_docprolos_fri *_prolos_sick, gen(mistab_)
-
-drop mistab_*eq5d*
-
-*************by group missing data**********************************
-by alloc: tab1 mistab_*
-
-*********association between baseline covariates and missingness****
-local name "cost_bs cost_tb d0_cost_doc m6_cost_doc m12_cost_doc d0_cost_hos m6_cost_hos m12_cost_hos m6_cost_ss m12_cost_ss"
-foreach n of local name {
-	xi: logistic mistab_`n' alloc
-	xi: logistic mistab_`n' d0_sdh_age
-	xi: logistic mistab_`n' i.country
-	xi: logistic mistab_`n' d0_smoke_years
-}
-
-local name "d0_exp_tb m6_exp_tb m12_exp_tb d0_exp_ss m6_exp_ss m12_exp_ss d0_exp_doc m6_exp_doc m12_exp_doc d0_exp_hos m6_exp_hos m12_exp_hos"
-foreach n of local name {
-	xi: logistic mistab_`n' alloc
-	xi: logistic mistab_`n' d0_sdh_age
-	xi: logistic mistab_`n' i.country
-	xi: logistic mistab_`n' d0_smoke_years
-}
-
-local name "d0_tbprolos_fri m6_tbprolos_fri m12_tbprolos_fri d0_docprolos_fri m6_docprolos_fri m12_docprolos_fri d0_prolos_sick m6_prolos_sick m12_prolos_sick"
-foreach n of local name {
-	xi: logistic mistab_`n' alloc
-	xi: logistic mistab_`n' d0_sdh_age
-	xi: logistic mistab_`n' i.country
-	xi: logistic mistab_`n' d0_smoke_years
-}
-
-local name "d0_exp_tob m6_exp_tob m12_exp_tob"
-foreach n of local name {
-	xi: logistic mistab_`n' alloc
-	xi: logistic mistab_`n' d0_sdh_age
-	xi: logistic mistab_`n' i.country
-	xi: logistic mistab_`n' d0_smoke_years
-}
-
-local time "m6 m12"
-foreach t of local time {
-	egen temp = rowtotal(mistab_`t'_eq1-mistab_`t'_eq5 mistab_`t'_vas)
-	recode temp 6=1 nonm=0, g(mistab_`t'_eq5d)
-	drop temp
-}
-
-local name "m6_eq5d m12_eq5d"
-foreach n of local name {
-	xi: logistic mistab_`n' alloc
-	xi: logistic mistab_`n' d0_sdh_age
-	xi: logistic mistab_`n' i.country
-	xi: logistic mistab_`n' d0_smoke_years
-}
-
-xi: logistic mistab_m6_tbsc alloc
-xi: logistic mistab_m6_tbsc d0_sdh_age
-xi: logistic mistab_m6_tbsc i.country
-xi: logistic mistab_m6_tbsc d0_smoke_years
-
-************association between missingness and observed outcomes********************************
-local name "cost_doc cost_hos cost_ss exp_tb exp_ss exp_doc exp_hos exp_tob tbprolos_fri docprolos_fri prolos_sick"
-foreach n of local name {
-	xi: logistic mistab_m6_`n' d0_ppp`n'
-	xi: logistic mistab_m12_`n' d0_ppp`n'
-	xi: logistic mistab_m12_`n' m6_ppp`n'
-}
-
-misstable summ utility_zimbabwe_*, gen(mistab_)
-
-local name "utility_zimbabwe"
-foreach n of local name {
-	xi: logistic mistab_`n'_m6 `n'_d0
-	xi: logistic mistab_`n'_m12 `n'_d0
-	xi: logistic mistab_`n'_m12 `n'_m6
-}
-
-xi: logistic mistab_m6_vas d0_vas
-xi: logistic mistab_m12_vas d0_vas
-xi: logistic mistab_m12_vas m6_vas
