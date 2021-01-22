@@ -177,13 +177,3 @@ margins, dydx(alloc)
 
 meglm m6_qaly_zimbabwe ib2.alloc utility_zimbabwe_d0 d0_sdh_age i.d0_sdh_gender i.country || d0_siteid:, f(gau)
 
-***************by country***********************************
-keep if country == 1
-keep if country == 2
-
-meglm trial_cost_m6 ib2.alloc d0_cost_noint d0_sdh_age i.d0_sdh_gender || d0_siteid:, f(gam)
-margins, dydx(alloc)
-
-meglm m6_qaly_zimbabwe ib2.alloc utility_zimbabwe_d0 d0_sdh_age i.d0_sdh_gender || d0_siteid:, f(gau)
-
-
