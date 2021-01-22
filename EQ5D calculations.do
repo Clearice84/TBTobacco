@@ -158,40 +158,6 @@ mi estimate: mean d0_vas, over(alloc)
 mi estimate: mean m6_vas, over(alloc)
 mi estimate: mean m12_vas, over(alloc)
 
-****************************************************************
-local name "zimbabwe uk thailand thailand2 malaysia indonesia"
-foreach n of local name {
-	local time "d0 m6 m12"
-	foreach t of local time {
-		display "`n' `t'"
-		mi estimate: mean utility_`n'_`t' if country == 1, over(alloc)
-	}
-}
-
-mi estimate: mean qaly_zimbabwe if country == 1, over(alloc)
-mi estimate: mean qaly_uk if country == 1, over(alloc)
-mi estimate: mean qaly_thailand if country == 1, over(alloc)
-mi estimate: mean qaly_thailand2 if country == 1, over(alloc)
-mi estimate: mean qaly_malaysia if country == 1, over(alloc)
-mi estimate: mean qaly_indonesia if country == 1, over(alloc)
-
-*****************************************************************
-local name "zimbabwe uk thailand thailand2 malaysia indonesia"
-foreach n of local name {
-	local time "d0 m6 m12"
-	foreach t of local time {
-		display "`n' `t'"
-		mi estimate: mean utility_`n'_`t' if country == 2, over(alloc)
-	}
-}
-
-mi estimate: mean qaly_zimbabwe if country == 2, over(alloc)
-mi estimate: mean qaly_uk if country == 2, over(alloc)
-mi estimate: mean qaly_thailand if country == 2, over(alloc)
-mi estimate: mean qaly_thailand2 if country == 2, over(alloc)
-mi estimate: mean qaly_malaysia if country == 2, over(alloc)
-mi estimate: mean qaly_indonesia if country == 2, over(alloc)
-
 ********************************************************************
 ******6 months primary**********************
 local name "zimbabwe uk thailand thailand2 malaysia indonesia"
@@ -208,40 +174,3 @@ mi estimate: mean m6_qaly_thailand, over(alloc)
 mi estimate: mean m6_qaly_malaysia, over(alloc)
 mi estimate: mean m6_qaly_indonesia, over(alloc)
 
-
-mi estimate: mean m6_qaly_zimbabwe if country == 1, over(alloc)
-mi estimate: mean m6_qaly_uk if country == 1, over(alloc)
-mi estimate: mean m6_qaly_thailand if country == 1, over(alloc)
-mi estimate: mean m6_qaly_thailand2 if country == 1, over(alloc)
-mi estimate: mean m6_qaly_malaysia if country == 1, over(alloc)
-mi estimate: mean m6_qaly_indonesia if country == 1, over(alloc)
-
-mi estimate: mean d0_vas if country == 1, over(alloc)
-mi estimate: mean m6_vas if country == 1, over(alloc)
-mi estimate: mean m12_vas if country == 1, over(alloc)
-
-mi estimate: mean m6_qaly_zimbabwe if country == 2, over(alloc)
-mi estimate: mean m6_qaly_uk if country == 2, over(alloc)
-mi estimate: mean m6_qaly_thailand if country == 2, over(alloc)
-mi estimate: mean m6_qaly_thailand2 if country == 2, over(alloc)
-mi estimate: mean m6_qaly_malaysia if country == 2, over(alloc)
-mi estimate: mean m6_qaly_indonesia if country == 2, over(alloc)
-
-mi estimate: mean d0_vas if country == 2, over(alloc)
-mi estimate: mean m6_vas if country == 2, over(alloc)
-mi estimate: mean m12_vas if country == 2, over(alloc)
-
-
-*******************death replace***************************************
-local name "zimbabwe uk thailand thailand2 malaysia indonesia"
-foreach n of local name {
-	local time "d0 m6 m12"
-	foreach t of local time {
-		display "`n' `t' utility"
-		table alloc country, c(n utility_`n'_`t' mean utility_`n'_`t' sd utility_`n'_`t') col
-	}
-	display "m6 qaly `n'"
-	table alloc country, c(n m6_qaly_`n' mean m6_qaly_`n' sd m6_qaly_`n') col
-	display "m12 qaly `n'"
-	table alloc country, c(n qaly_`n' mean qaly_`n' sd qaly_`n') col
-}
